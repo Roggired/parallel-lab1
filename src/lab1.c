@@ -36,13 +36,15 @@ int main(int argc, char* argv[]) {
 
     gettimeofday(&T1, NULL);
 
-    double x;
+    int k = 0;
+    double x = 0;
     for (int i = 0; i < 100; i++) {
-        srand(i);
+        k = i;
+        srand(k);
 
         // ----------- STEP GENERATE --------------
-        double* m1 = generate_m1(N, (unsigned int*) &i);
-        double* m2 = generate_m2(N, (unsigned int*) &i);
+        double* m1 = generate_m1(N, (unsigned int*) &k);
+        double* m2 = generate_m2(N, (unsigned int*) &k);
         // ----------------------------------------
 
         // ----------- STEP MAP -------------------
