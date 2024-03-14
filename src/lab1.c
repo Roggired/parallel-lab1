@@ -36,16 +36,43 @@ int main(int argc, char* argv[]) {
 
     gettimeofday(&T1, NULL);
 
-    int k = 0;
+    int k1 = 0;
+    int k2 = 1;
+    int k3 = 2;
+    int k4 = 3;
+    int k5 = 4;
     double x = 0;
-    for (int i = 0; i < 100; i++) {
-        k = i;
-        srand(k);
 
-        // ----------- STEP GENERATE --------------
-        double* m1 = generate_m1(N, (unsigned int*) &k);
-        double* m2 = generate_m2(N, (unsigned int*) &k);
-        // ----------------------------------------
+    double** m11 = (double**) malloc(sizeof(double*) * 5);
+    double** m12 = (double**) malloc(sizeof(double*) * 5);
+    // ----------- STEP GENERATE --------------
+    srand(k1);
+    m11[0] = generate_m1(N, (unsigned int*) &k1);
+    m12[0] = generate_m2(N, (unsigned int*) &k1);
+    srand(k2);
+    m11[1] = generate_m1(N, (unsigned int*) &k2);
+    m12[1] = generate_m2(N, (unsigned int*) &k2);
+    srand(k3);
+    m11[2] = generate_m1(N, (unsigned int*) &k3);
+    m12[2] = generate_m2(N, (unsigned int*) &k3);
+    srand(k4);
+    m11[3] = generate_m1(N, (unsigned int*) &k4);
+    m12[3] = generate_m2(N, (unsigned int*) &k4);
+    srand(k5);
+    m11[4] = generate_m1(N, (unsigned int*) &k5);
+    m12[4] = generate_m2(N, (unsigned int*) &k5);
+    // ----------------------------------------
+
+    for (int i = 0; i < 5; i++) {
+        double* m1 = malloc(sizeof(double) * N);
+        for (int j = 0; j < N; j++) {
+            m1[j] = m11[i][j];
+        }
+
+        double* m2 = malloc(sizeof(double) * N / 2);
+        for (int j = 0; j < N / 2; j++) {
+            m2[j] = m12[i][j];
+        }
 
         // ----------- STEP MAP -------------------
         map_m1(m1, N);
@@ -71,8 +98,21 @@ int main(int argc, char* argv[]) {
         free(m2);
         // ----------------------------------------
 
-//        printf("\n\nX: %lf\n\n", x);
+        printf("\n\nX: %lf\n\n", x);
     }
+
+    free(m11[0]);
+    free(m11[1]);
+    free(m11[2]);
+    free(m11[3]);
+    free(m11[4]);
+    free(m11);
+    free(m12[0]);
+    free(m12[1]);
+    free(m12[2]);
+    free(m12[3]);
+    free(m12[4]);
+    free(m12);
 
     gettimeofday(&T2, NULL);
     long delta_ms = (T2.tv_sec - T1.tv_sec) * 1000 + (T2.tv_usec - T1.tv_usec) / 1000;
