@@ -1,11 +1,11 @@
 CC=gcc
-CFLAGS=-O3 -Wall -Werror
+CFLAGS=-O0 -Wall
 LDFLAGS=-lm
 
 SRC=./src
 BUILD=./build
 
-all: prepare lab1-seq lab1-par-1 lab1-par-less lab1-par-exact lab1-par-more
+all: prepare lab1-seq lab1-par-1 lab1-par-less lab1-par-exact lab1-par-more lab3-seq lab3-omp
 
 prepare:
 	mkdir -p $(BUILD)
@@ -27,3 +27,9 @@ lab1-par-exact:
 
 lab1-par-more:
 	$(CC) $(CFLAGS) -floop-parallelize-all -ftree-parallelize-loops=36 -o $(BUILD)/lab1-par-more $(SRC)/lab1.c $(LDFLAGS)
+
+lab3-seq:
+	$(CC) $(CFLAGS) -o $(BUILD)/lab3-seq $(SRC)/lab3.c $(LDFLAGS)
+
+lab3-omp:
+	$(CC) $(CFLAGS) -fopenmp -o $(BUILD)/lab3-omp $(SRC)/lab3.c $(LDFLAGS)
