@@ -18,7 +18,7 @@ static void heapSort(double* arr, int N);
 
 static double reduce(double* m2, int N);
 
-#define EXPERIMENTS_NUMBER 100
+#define EXPERIMENTS_NUMBER 5
 #define THREADS_NUMBER 8
 #define SCHEDULE schedule(guided, 1)
 
@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
         free(m1);
         free(m2);
         // ----------------------------------------
-//        printf("\n\nX: %lf\n\n", x);
+        printf("\n\nX: %lf\n\n", x);
         x = x + 0.0;
     }
 
@@ -228,19 +228,90 @@ static void heapify(double* arr, int N, int i) {
 
 // Main function to do heap sort
 static void heapSort(double* arr, int N) {
-    // Build max heap
-    for (int i = N / 2 - 1; i >= 0; i--) {
-        heapify(arr, N, i);
+    int a_start = 0, a_end = N / 2;
+    int b_start = a_end, b_end = N;
+
+    int a_size = N / 2;
+    int b_size;
+    if (N % 2 == 0) {
+        b_size = a_size;
+    } else {
+        b_size = a_size + 1;
     }
 
-    // Heap sort
-    for (int i = N - 1; i >= 0; i--) {
-        swap(&arr[0], &arr[i]);
-        // Heapify root element
-        // to get highest element at
-        // root again
-        heapify(arr, i, 0);
+    double* arr_a = (double*) malloc(sizeof(double*) * a_size);
+    double* arr_b = (double*) malloc(sizeof(double*) * b_size);
+    #pragma omp parallel sections shared(arr, N, a_start, a_end, b_start, b_end, arr_a, arr_b, a_size, b_size)
+    {
+        #pragma omp section
+        {
+            for (int i = a_start; i < a_end; i++) {
+                arr_a[i] = arr[i];
+            }
+
+            // Build max heap
+            for (int i = a_size / 2 - 1; i >= 0; i--) {
+                heapify(arr_a, a_size, i);
+            }
+
+            // Heap sort
+            for (int i = a_size - 1; i >= 0; i--) {
+                swap(&arr_a[0], &arr_a[i]);
+                // Heapify root element
+                // to get highest element at
+                // root again
+                heapify(arr_a, i, 0);
+            }
+        }
+
+        #pragma omp section
+        {
+            for (int i = b_start; i < b_end; i++) {
+                arr_b[i - b_start] = arr[i];
+            }
+
+            // Build max heap
+            for (int i = b_size / 2 - 1; i >= 0; i--) {
+                heapify(arr_b, b_size, i);
+            }
+
+            // Heap sort
+            for (int i = b_size - 1; i >= 0; i--) {
+                swap(&arr_b[0], &arr_b[i]);
+                // Heapify root element
+                // to get highest element at
+                // root again
+                heapify(arr_b, i, 0);
+            }
+        }
     }
+
+    int a_i = 0;
+    int b_i = 0;
+    for (int i = 0; i < N; i++) {
+        if (a_i >= a_size) {
+            arr[i] = arr_b[b_i];
+            b_i++;
+            continue;
+        }
+
+        if (b_i >= b_size) {
+            arr[i] = arr_a[a_i];
+            a_i++;
+            continue;
+        }
+
+        if (arr_a[a_i] <= arr_b[b_i]) {
+            arr[i] = arr_a[a_i];
+            a_i++;
+        } else {
+            arr[i] = arr_b[b_i];
+            b_i++;
+        }
+    }
+
+    free(arr_a);
+    free(arr_b);
 }
 
 static double reduce(double* m2, int N) {
